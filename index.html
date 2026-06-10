@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nashley Social Scheduler</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Scheduler filters">
+        <div class="brand-row">
+          <div class="brand-mark" aria-hidden="true">NS</div>
+          <div>
+            <h1>Nashley Social Scheduler</h1>
+            <p>Instagram and Facebook planner</p>
+          </div>
+        </div>
+
+        <section class="panel-block">
+          <div class="section-title">Accounts</div>
+          <label class="check-row">
+            <input type="checkbox" data-account-filter="instagram" checked />
+            <span class="account-dot instagram"></span>
+            <span>Instagram</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" data-account-filter="facebook" checked />
+            <span class="account-dot facebook"></span>
+            <span>Facebook</span>
+          </label>
+        </section>
+
+        <section class="panel-block">
+          <div class="section-title">Status</div>
+          <label class="check-row">
+            <input type="checkbox" data-status-filter="Draft" checked />
+            <span class="status-chip draft">Draft</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" data-status-filter="Review" checked />
+            <span class="status-chip review">Review</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" data-status-filter="Scheduled" checked />
+            <span class="status-chip scheduled">Scheduled</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" data-status-filter="Published" checked />
+            <span class="status-chip published">Published</span>
+          </label>
+        </section>
+
+        <section class="panel-block compact-metrics" aria-label="Queue summary">
+          <div class="metric-card">
+            <span>Scheduled</span>
+            <strong id="scheduled-count">0</strong>
+          </div>
+          <div class="metric-card">
+            <span>Needs review</span>
+            <strong id="review-count">0</strong>
+          </div>
+        </section>
+
+        <section class="panel-block media-library">
+          <div class="section-title">Media Library</div>
+          <button class="media-tile media-camp" type="button" data-media="camp">
+            <span>Camp launch</span>
+          </button>
+          <button class="media-tile media-gear" type="button" data-media="gear">
+            <span>Gear flatlay</span>
+          </button>
+          <button class="media-tile media-lake" type="button" data-media="lake">
+            <span>Lake morning</span>
+          </button>
+          <button class="media-tile media-team" type="button" data-media="team">
+            <span>Team moment</span>
+          </button>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Content calendar</p>
+            <h2 id="calendar-title">This week</h2>
+          </div>
+          <div class="toolbar" aria-label="Calendar tools">
+            <button class="icon-button" type="button" id="prev-range" title="Previous range" aria-label="Previous range">&lt;</button>
+            <button class="icon-button" type="button" id="today-button" title="Today">Today</button>
+            <button class="icon-button" type="button" id="next-range" title="Next range" aria-label="Next range">&gt;</button>
+            <div class="segmented" role="tablist" aria-label="Calendar view">
+              <button type="button" class="active" data-view="week">Week</button>
+              <button type="button" data-view="month">Month</button>
+            </div>
+            <button class="ghost-button" type="button" id="bulk-post-button">Bulk schedule</button>
+            <button class="primary-button" type="button" id="new-post-button">+ New post</button>
+          </div>
+        </header>
+
+        <section class="quick-row" aria-label="Quick controls">
+          <label class="search-box">
+            <span>Search</span>
+            <input id="search-input" type="search" placeholder="Caption, title, campaign" />
+          </label>
+          <label class="select-box">
+            <span>Campaign</span>
+            <select id="campaign-filter">
+              <option value="all">All campaigns</option>
+              <option value="Summer Launch">Summer Launch</option>
+              <option value="Community">Community</option>
+              <option value="Evergreen">Evergreen</option>
+            </select>
+          </label>
+          <button class="ghost-button" type="button" id="export-button">Export CSV</button>
+        </section>
+
+        <section class="calendar-surface" aria-label="Scheduled posts">
+          <div class="week-grid" id="week-grid"></div>
+          <div class="month-grid hidden" id="month-grid"></div>
+        </section>
+      </main>
+
+      <aside class="inspector" aria-label="Post studio">
+        <div class="inspector-header">
+          <div>
+            <p class="eyebrow">Post studio</p>
+            <h2 id="editor-heading">New post</h2>
+          </div>
+          <div class="inspector-actions">
+            <button class="icon-button" type="button" id="duplicate-post" title="Duplicate post" aria-label="Duplicate post">++</button>
+            <button class="danger-button" type="button" id="delete-post">Delete</button>
+          </div>
+        </div>
+
+        <div class="preview-frame" id="preview-frame">
+          <div class="preview-topline">
+            <div class="avatar">NS</div>
+            <div>
+              <strong>nashley.social</strong>
+              <span id="preview-platform">Instagram and Facebook</span>
+            </div>
+          </div>
+          <div class="preview-media media-camp" id="preview-media"></div>
+          <div class="preview-copy">
+            <strong id="preview-title">Camp launch teaser</strong>
+            <p id="preview-caption"></p>
+          </div>
+          <div class="preview-stats" aria-label="Preview stats">
+            <span>Like</span>
+            <span>Comment</span>
+            <span>Share</span>
+          </div>
+        </div>
+
+        <form class="editor-form" id="post-form">
+          <label>
+            <span>Title</span>
+            <input id="post-title" name="title" type="text" autocomplete="off" />
+          </label>
+
+          <div class="platform-tabs" role="tablist" aria-label="Caption platform">
+            <button class="active" type="button" data-caption-platform="instagram">Instagram</button>
+            <button type="button" data-caption-platform="facebook">Facebook</button>
+          </div>
+
+          <label>
+            <span id="caption-label">Instagram caption</span>
+            <textarea id="post-caption" name="caption" rows="5"></textarea>
+          </label>
+
+          <div class="two-col">
+            <label>
+              <span>Date</span>
+              <input id="post-date" name="date" type="date" />
+            </label>
+            <label>
+              <span>Time</span>
+              <input id="post-time" name="time" type="time" />
+            </label>
+          </div>
+
+          <div class="two-col">
+            <label>
+              <span>Status</span>
+              <select id="post-status" name="status">
+                <option>Draft</option>
+                <option>Review</option>
+                <option>Scheduled</option>
+                <option>Published</option>
+              </select>
+            </label>
+            <label>
+              <span>Format</span>
+              <select id="post-format" name="format">
+                <option>Photo</option>
+                <option>Carousel</option>
+                <option>Reel</option>
+                <option>Story</option>
+                <option>Link post</option>
+              </select>
+            </label>
+          </div>
+
+          <fieldset class="platform-options">
+            <legend>Publish to</legend>
+            <label class="switch-row">
+              <input id="platform-instagram" type="checkbox" checked />
+              <span>Instagram</span>
+            </label>
+            <label class="switch-row">
+              <input id="platform-facebook" type="checkbox" checked />
+              <span>Facebook</span>
+            </label>
+          </fieldset>
+
+          <label>
+            <span>Campaign</span>
+            <select id="post-campaign" name="campaign">
+              <option>Summer Launch</option>
+              <option>Community</option>
+              <option>Evergreen</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Hashtags / first comment</span>
+            <input id="post-tags" name="tags" type="text" autocomplete="off" />
+          </label>
+
+          <div class="checklist" aria-label="Post checklist">
+            <label><input id="check-media" type="checkbox" /> Media approved</label>
+            <label><input id="check-links" type="checkbox" /> Links checked</label>
+            <label><input id="check-owner" type="checkbox" /> Owner signed off</label>
+          </div>
+
+          <div class="form-actions">
+            <button class="primary-button" type="button" id="schedule-button">Schedule</button>
+            <button class="ghost-button" type="button" id="save-draft-button">Save draft</button>
+          </div>
+        </form>
+
+        <section class="analytics-panel" aria-label="Published analytics">
+          <div class="section-title">Published snapshot</div>
+          <div class="analytics-grid">
+            <div><span>Reach</span><strong id="metric-reach">0</strong></div>
+            <div><span>Likes</span><strong id="metric-likes">0</strong></div>
+            <div><span>Comments</span><strong id="metric-comments">0</strong></div>
+            <div><span>Saves</span><strong id="metric-saves">0</strong></div>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <dialog class="bulk-dialog" id="bulk-dialog" aria-labelledby="bulk-heading">
+      <form class="bulk-panel" method="dialog">
+        <div class="bulk-header">
+          <div>
+            <p class="eyebrow">Batch composer</p>
+            <h2 id="bulk-heading">Bulk schedule posts</h2>
+          </div>
+          <button class="icon-button" type="button" id="bulk-close" aria-label="Close bulk scheduler">X</button>
+        </div>
+
+        <label class="bulk-textarea">
+          <span>Posts</span>
+          <textarea id="bulk-lines" rows="8">Trail Tuesday | A quick look at the route families ask about most.
+Cabin checklist | Save this simple list before packing day.
+Counselor spotlight | Meet the team member leading this weekend's activities.</textarea>
+        </label>
+
+        <div class="bulk-hint">
+          Use one line per post. Format: Title | Instagram caption | Facebook caption. If you only add one caption, it will be used for both.
+        </div>
+
+        <div class="bulk-grid">
+          <label>
+            <span>Start date</span>
+            <input id="bulk-start-date" type="date" />
+          </label>
+          <label>
+            <span>Time slots</span>
+            <input id="bulk-times" type="text" value="09:00, 13:30, 17:00" />
+          </label>
+          <label>
+            <span>Status</span>
+            <select id="bulk-status">
+              <option>Scheduled</option>
+              <option>Draft</option>
+              <option>Review</option>
+            </select>
+          </label>
+          <label>
+            <span>Format</span>
+            <select id="bulk-format">
+              <option>Photo</option>
+              <option>Carousel</option>
+              <option>Reel</option>
+              <option>Story</option>
+              <option>Link post</option>
+            </select>
+          </label>
+          <label>
+            <span>Campaign</span>
+            <select id="bulk-campaign">
+              <option>Summer Launch</option>
+              <option>Community</option>
+              <option>Evergreen</option>
+            </select>
+          </label>
+          <label>
+            <span>Media</span>
+            <select id="bulk-media">
+              <option value="camp">Camp launch</option>
+              <option value="gear">Gear flatlay</option>
+              <option value="lake">Lake morning</option>
+              <option value="team">Team moment</option>
+            </select>
+          </label>
+        </div>
+
+        <fieldset class="bulk-platforms">
+          <legend>Publish to</legend>
+          <label class="switch-row">
+            <input id="bulk-platform-instagram" type="checkbox" checked />
+            <span>Instagram</span>
+          </label>
+          <label class="switch-row">
+            <input id="bulk-platform-facebook" type="checkbox" checked />
+            <span>Facebook</span>
+          </label>
+        </fieldset>
+
+        <div class="bulk-preview" aria-live="polite">
+          <strong id="bulk-preview-count">3 posts ready</strong>
+          <span id="bulk-preview-range">They will fill the time slots across consecutive days.</span>
+        </div>
+
+        <div class="form-actions">
+          <button class="primary-button" type="button" id="bulk-create-button">Create posts</button>
+          <button class="ghost-button" type="button" id="bulk-cancel-button">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
